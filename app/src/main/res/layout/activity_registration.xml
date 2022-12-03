@@ -17,9 +17,9 @@
             android:id="@+id/profile_image"
             android:layout_width="@dimen/_100sdp"
             android:layout_height="@dimen/_100sdp"
-            android:src="@drawable/profile"
-            app:civ_border_width="@dimen/_2sdp"
-            app:civ_border_color="#0022FF"/>
+            android:src="@drawable/profile_image"
+            app:civ_border_color="#0022FF"
+            app:civ_border_width="@dimen/_2sdp" />
 
         <TextView
             android:layout_width="wrap_content"
