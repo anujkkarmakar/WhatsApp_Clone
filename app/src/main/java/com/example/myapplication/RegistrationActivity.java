@@ -42,7 +42,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     FirebaseStorage storage = FirebaseStorage.getInstance();
     FirebaseAuth auth = FirebaseAuth.getInstance();
-    String imageUri;
+    String imageURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +97,21 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                                 storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                     @Override
                                                     public void onSuccess(Uri uri) {
-                                                        imageUri = Uri.parse(uri.toString());
+                                                        imageURI = uri.toString();
+                                                        Users user = new Users(name, email, imageURI, auth.getUid());
+                                                        reference.setValue(user)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if(task.isSuccessful()) {
+                                                                            Toast.makeText(RegistrationActivity.this, "Successfully created", Toast.LENGTH_SHORT).show();
+                                                                            startActivity(new Intent(RegistrationActivity.this, HomeActivity.class));
+                                                                        }
+                                                                        else {
+                                                                            Toast.makeText(RegistrationActivity.this, "Error created profile", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    }
+                                                                });
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
@@ -109,6 +123,22 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                             }
                                         }
                                     });
+                                } else {
+                                    imageURI = "https://firebasestorage.googleapis.com/v0/b/random-a2331.appspot.com/o/profile_image.png?alt=media&token=4457d398-a7ac-4908-931f-3c0dfb4343ea";
+                                    Users user = new Users(name, email, imageURI, auth.getUid());
+                                    reference.setValue(user)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if(task.isSuccessful()) {
+                                                        Toast.makeText(RegistrationActivity.this, "Successfully created", Toast.LENGTH_SHORT).show();
+                                                        startActivity(new Intent(RegistrationActivity.this, HomeActivity.class));
+                                                    }
+                                                    else {
+                                                        Toast.makeText(RegistrationActivity.this, "Error created profile", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
                                 }
                             }
                             else {
