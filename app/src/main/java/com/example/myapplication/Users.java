@@ -1,16 +1,21 @@
 package com.example.myapplication;
 
 public class Users {
-    String name, email, imageUri, UID;
+    String name, email, imageUri, UID, status;
 
     public Users() {}
 
-    public Users(String name, String email, String imageUri, String UID) {
+    public Users(String name, String email, String imageUri, String UID, String status) {
         this.name = name;
         this.email = email;
         this.imageUri = imageUri;
         this.UID = UID;
+        this.status = status;
     }
+
+    public String getStatus() { return status; }
+
+    public void setStatus(String status) { this.status = status; }
 
     public String getName() {
         return name;

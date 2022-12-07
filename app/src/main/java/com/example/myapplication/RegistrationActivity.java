@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,21 +36,28 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class RegistrationActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final int PICK_IMAGE = 1;
-    private final String namePattern = "^([A-Za-z]{1}[A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$";
+    //private final String namePattern = "^([A-Za-z]{1}[A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$";
     Uri imageUri;
+    private final String defaultStatus = "Namaste. I'm using WhatsApp Clone";
     private final String emailPattern = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     CircleImageView profileImage;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     FirebaseStorage storage = FirebaseStorage.getInstance();
     FirebaseAuth auth = FirebaseAuth.getInstance();
     String imageURI;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
+
         findViewById(R.id.txt_signin).setOnClickListener(this);
+        findViewById(R.id.txt_signup).setOnClickListener(this);
         profileImage = findViewById(R.id.profile_image);
     }
 
@@ -64,16 +72,23 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         String con_password = etConPass.getText().toString().trim();
         String name = etName.getText().toString().trim();
 
+        progressDialog.show();
+
         if(TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(con_password)) {
+            progressDialog.dismiss();
             Toast.makeText(this, "Enter valid credentials", Toast.LENGTH_SHORT).show();
         } else if (!email.matches(emailPattern)){
+            progressDialog.dismiss();
             etEmail.setError("Enter valid email");
-        } else if(!name.matches(namePattern)) {
-            etName.setError("Enter valid name");
+        // } else if(!name.matches(namePattern)) {
+            //progressDialog.dismiss();
+            //etName.setError("Enter valid name");
         } else if(!password.equals(con_password)) {
+            progressDialog.dismiss();
             etPass.setError("Password did not match");
             etConPass.setError("Password did not match");
         } else if(password.length() < 6) {
+            progressDialog.dismiss();
             Toast.makeText(this, "Password must be at-least 6 characters", Toast.LENGTH_SHORT).show();
             etPass.setError("Password did not match");
             etConPass.setError("", null);
@@ -98,16 +113,18 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                                     @Override
                                                     public void onSuccess(Uri uri) {
                                                         imageURI = uri.toString();
-                                                        Users user = new Users(name, email, imageURI, auth.getUid());
+                                                        Users user = new Users(name, email, imageURI, auth.getUid(), defaultStatus);
                                                         reference.setValue(user)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                     @Override
                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                         if(task.isSuccessful()) {
+                                                                            progressDialog.dismiss();
                                                                             Toast.makeText(RegistrationActivity.this, "Successfully created", Toast.LENGTH_SHORT).show();
                                                                             startActivity(new Intent(RegistrationActivity.this, HomeActivity.class));
                                                                         }
                                                                         else {
+                                                                            progressDialog.dismiss();
                                                                             Toast.makeText(RegistrationActivity.this, "Error created profile", Toast.LENGTH_SHORT).show();
                                                                         }
                                                                     }
@@ -125,7 +142,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                     });
                                 } else {
                                     imageURI = "https://firebasestorage.googleapis.com/v0/b/random-a2331.appspot.com/o/profile_image.png?alt=media&token=4457d398-a7ac-4908-931f-3c0dfb4343ea";
-                                    Users user = new Users(name, email, imageURI, auth.getUid());
+                                    Users user = new Users(name, email, imageURI, auth.getUid(), defaultStatus);
                                     reference.setValue(user)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
@@ -142,6 +159,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                 }
                             }
                             else {
+                                progressDialog.dismiss();
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                 Toast.makeText(RegistrationActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
